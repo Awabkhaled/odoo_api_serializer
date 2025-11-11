@@ -29,6 +29,7 @@ Perfect for developers building structured, consistent, and secure Odoo REST API
     'license': 'LGPL-3',
     'depends': ['base'],
     'data': [],
+    'images': ['static/description/icon.png'],
     'installable': True,
     'application': False,
     'auto_install': False,
