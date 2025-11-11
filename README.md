@@ -7,8 +7,9 @@ A lightweight validation and serialization framework for building clean, maintai
 The `odoo_api_serializer` module provides a structured approach to handling API requests in Odoo, offering:
 
 - **Field-level validation** with type checking and custom validators
-- **Consistent JSON responses** with automatic datetime serialization
 - **DRF-inspired API** that's familiar to Django developers
+- **Configurable date/datetime formats**
+- **Clean separation of validation logic from controller code**
 
 ## Installation
 
@@ -46,111 +47,236 @@ The module supports the following field types:
 | `list` | Array values | `[1, 2, 3]` |
 | `dict` | JSON objects | `{"key": "value"}` |
 
-### BaseApiController
+## How to Use
 
-A base controller class providing consistent JSON response formatting with automatic datetime handling.
+This section demonstrates how to build a complete REST API using the Film API example.
 
-## Usage Examples
+### Step 1: Define Your Serializer
 
-### Basic Serializer
+Create a serializer class that defines the fields you want to validate:
 
 ```python
-from odoo_api_serializer.serializers import BaseSerializer, Field
+from odoo.addons.odoo_api_serializer.utils.serializers import BaseSerializer, Field
 
-class ProductSerializer(BaseSerializer):
-    name = Field(type='char', required=True)
-    price = Field(type='float', required=True)
-    quantity = Field(type='integer', default=0)
-    active = Field(type='boolean', default=True)
+class FilmSerializer(BaseSerializer):
+    # Configure custom date formats (optional)
+    date_format = "%Y/%m/%d"
+    datetime_format = "%Y/%m/%d %H:%M:%S"
     
-    def validate_price(self, value):
-        """Custom validator for price field"""
-        if value < 0:
-            raise ValueError("Price cannot be negative")
+    # Define fields with validation rules
+    name = Field(type='char', required=True)
+    genre = Field(
+        type='selection',
+        selection=('action', 'drama', 'comedy', 'animation', 
+                   'romance', 'musical', 'documentary', 'thriller', 'horror')
+    )
+    release_date = Field(type='date')
+    first_premier_datetime = Field(type='datetime')
+    list_test = Field(type='list')
+    dict_test = Field(type='dict')
+    
+    # Add custom field validator
+    def validate_name(self, value):
+        if value[0] == 'a':
+            raise ValueError("Name cannot start with an 'a'")
         return value
 ```
 
-### Using Selection Fields
+### Step 2: Create Your API Controller
+
+Build your controller with endpoints for CRUD operations:
 
 ```python
-class OrderSerializer(BaseSerializer):
-    status = Field(
-        type='selection',
-        required=True,
-        selection=['draft', 'confirmed', 'done', 'cancelled']
-    )
-    order_date = Field(type='date', required=True)
-```
+from odoo import http
+from odoo.http import request
+import json
 
-### Custom Date Formats
-
-```python
-class CustomSerializer(BaseSerializer):
-    date_format = "%d/%m/%Y"  # DD/MM/YYYY
-    datetime_format = "%d/%m/%Y %H:%M"  # DD/MM/YYYY HH:MM
-    
-    created_date = Field(type='date', required=True)
-    updated_at = Field(type='datetime')
-```
-
-### API Controller Example
-
-```python
-from odoo_api_serializer.controllers import BaseApiController
-from odoo_api_serializer.serializers import BaseSerializer, Field
-
-class ProductApiController(BaseApiController):
-    
-    @http.route('/api/products', type='http', auth='user', methods=['POST'], csrf=False)
-    def create_product(self):
-        self._ensure_user_env()
+class FilmsApiController(http.Controller):
+    """
+    APIs for Film Model (awab.film)
+    Supports: Create, Read (all/single), Update, Delete
+    """
         
-        # Parse JSON data
-        try:
-            data = json.loads(request.httprequest.data)
-        except json.JSONDecodeError:
-            return self._json_response('error', 'Invalid JSON', http_status=400)
+    @http.route('/api/films', type='http', auth='none', 
+                methods=['GET', 'POST'], csrf=False)
+    def create_list_films(self, **kwargs):
+        """
+        GET  → List all films
+        """
+        # ------------------------------
+        # The Rest Of Your Code Here
+        # ------------------------------
+        payload = request.get_json_data()
+        serializer = FilmSerializer(payload, mode='create')    
+        if not serializer.is_valid():
+            return self._json_response( # A custom Function
+                'error', 
+                message='Validation failed', 
+                data=serializer.errors,
+                http_status=400
+            )
+            
+        film = request.env['awab.film'].sudo().create(serializer.cleaned_data())
+        return self._json_response( # A custom Function
+            'success', 
+            data=self._format_film(film), 
+            message='Film created', 
+            http_status=201
+        )
+            
+    @http.route('/api/films/<int:film_id>', type='http', auth='none', 
+                methods=['GET', 'PUT', 'DELETE'], csrf=False)
+    def get_update_delete_film(self, film_id, **kwargs):
+        """
+        Handle GET, PUT, and DELETE requests for a film:
+            - GET    /api/films/<id> → Fetch film info
+            - PUT    /api/films/<id> → Update film info
+            - DELETE /api/films/<id> → Delete film
+        """
+        # ------------------------------
+        # The Rest Of Your Code Here
+        # ------------------------------
+        payload = request.get_json_data()
+        if not payload:
+            return self._json_response('error', message='Missing request body', http_status=400)
         
-        # Validate with serializer
-        serializer = ProductSerializer(data=data, mode='create')
+        serializer = FilmSerializer(payload, mode='write')
+        
         if not serializer.is_valid():
             return self._json_response(
-                'error',
-                'Validation failed',
-                data={'errors': serializer.errors},
+                'error', 
+                message='Validation failed', 
+                data=serializer.errors,
                 http_status=400
             )
         
-        # Create record with validated data
-        product = request.env['product.product'].create(serializer.cleaned_data())
-        
+        film.write(serializer.cleaned_data())
         return self._json_response(
-            'success',
-            'Product created successfully',
-            data={'id': product.id, 'name': product.name}
+            'success', 
+            message='Film updated successfully', 
+            data=self._format_film(film)
         )
 ```
 
-### Update Operations
+### Step 3: Test Your API
 
-```python
-@http.route('/api/products/<int:product_id>', type='http', auth='user', methods=['PUT'], csrf=False)
-def update_product(self, product_id):
-    self._ensure_user_env()
-    
-    product = request.env['product.product'].browse(product_id)
-    if not product.exists():
-        return self._json_response('error', 'Product not found', http_status=404)
-    
-    data = json.loads(request.httprequest.data)
-    serializer = ProductSerializer(data=data, mode='write')
-    
-    if not serializer.is_valid():
-        return self._json_response('error', 'Validation failed', 
-                                  data={'errors': serializer.errors}, http_status=400)
-    
-    product.write(serializer.cleaned_data())
-    return self._json_response('success', 'Product updated')
+#### Create a Film (POST)
+
+**Request:**
+```bash
+POST /api/films
+Content-Type: application/json
+
+{
+    "name": "Inception",
+    "genre": "thriller",
+    "release_date": "2010/07/16",
+    "first_premier_datetime": "2010/07/08 20:00:00"
+}
+```
+
+**Response:**
+```json
+{
+    "status": "success",
+    "message": "Film created",
+    "data": {
+        "id": 1,
+        "name": "Inception",
+        "genre": "thriller",
+        "release_date": "16-07-2010",
+        "first_premier_datetime": "08-07-2010 20:00:00"
+    }
+}
+```
+#### Update Film (PUT)
+
+**Request:**
+```bash
+PUT /api/films/1
+Content-Type: application/json
+
+{
+    "genre": "action"
+}
+```
+
+**Response:**
+```json
+{
+    "status": "success",
+    "message": "Film updated successfully",
+    "data": {
+        "id": 1,
+        "name": "Inception",
+        "genre": "action",
+        "release_date": "16-07-2010",
+        "first_premier_datetime": "08-07-2010 20:00:00"
+    }
+}
+```
+
+### Validation Examples
+
+#### Invalid Selection Value
+
+**Request:**
+```json
+{
+    "name": "Test Film",
+    "genre": "scifi"
+}
+```
+
+**Response:**
+```json
+{
+    "status": "error",
+    "message": "Validation failed",
+    "data": {
+        "genre": "Invalid selection value 'scifi'. Must be one of: (action, drama, comedy, animation, romance, musical, documentary, thriller, horror)"
+    }
+}
+```
+
+#### Custom Validator Error
+
+**Request:**
+```json
+{
+    "name": "avatar"
+}
+```
+
+**Response:**
+```json
+{
+    "status": "error",
+    "message": "Validation failed",
+    "data": {
+        "name": "Name cannot start with an 'a'"
+    }
+}
+```
+
+#### Missing Required Field
+
+**Request:**
+```json
+{
+    "genre": "action"
+}
+```
+
+**Response:**
+```json
+{
+    "status": "error",
+    "message": "Validation failed",
+    "data": {
+        "name": "This field is required."
+    }
+}
 ```
 
 ## Validation Modes
@@ -180,9 +306,22 @@ class UserSerializer(BaseSerializer):
         return value
 ```
 
+## Custom Date Formats
+
+Override the default date/datetime formats in your serializer:
+
+```python
+class CustomSerializer(BaseSerializer):
+    date_format = "%d/%m/%Y"  # DD/MM/YYYY (e.g., 15/01/2025)
+    datetime_format = "%d/%m/%Y %H:%M"  # DD/MM/YYYY HH:MM (e.g., 15/01/2025 14:30)
+    
+    created_date = Field(type='date', required=True)
+    updated_at = Field(type='datetime')
+```
+
 ## Response Format
 
-All responses from `BaseApiController` follow this structure:
+All API responses should follow this consistent structure:
 
 ```json
 {
@@ -194,24 +333,7 @@ All responses from `BaseApiController` follow this structure:
 }
 ```
 
-Datetime objects are automatically formatted as strings using the configured formats.
-
-## Error Handling
-
-Validation errors are collected and returned in a dictionary:
-
-```python
-{
-    "status": "error",
-    "message": "Validation failed",
-    "data": {
-        "errors": {
-            "name": "This field is required.",
-            "price": "Invalid value for float: Expected float or integer"
-        }
-    }
-}
-```
+Datetime objects are automatically formatted as strings when using the `_json_response` helper method.
 
 ## Requirements
 
@@ -223,8 +345,8 @@ LGPL-3
 
 ## Contributing
 
-Contributions are welcome! Please ensure all code follows Odoo coding standards and includes appropriate validation tests.
+Contributions are welcome! Please ensure all code follows Odoo, and python coding standards.
 
 ## Support
 
-For issues and questions, please refer to the module documentation or contact the development team 'https://github.com/Awabkhaled'.
+For issues and questions, please refer to the module documentation or contact the development team at https://github.com/Awabkhaled
