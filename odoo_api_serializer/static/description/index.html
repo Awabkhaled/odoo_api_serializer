@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        .oe_container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .oe_row {
+            display: block;
+            width: 100%;
+        }
+        .oe_spaced {
+            margin-bottom: 40px;
+        }
+        .oe_dark {
+            background-color: #f8f9fa;
+        }
+        .oe_slogan {
+            text-align: center;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+        .oe_span6 {
+            display: inline-block;
+            width: 48%;
+            vertical-align: top;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .oe_span12 {
+            width: 100%;
+            padding: 0 20px;
+        }
+        .oe_picture {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .text-success { color: #28a745; }
+        .text-primary { color: #007bff; }
+        .text-info { color: #17a2b8; }
+        .text-warning { color: #ffc107; }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        .feature-box {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .badge-success { background: #28a745; color: white; }
+        .badge-info { background: #17a2b8; color: white; }
+    </style>
+</head>
+<body>
+
+<!-- Header Section -->
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h1 class="oe_slogan" style="font-size: 48px; color: #875A7B;">Odoo API Serializer</h1>
+        <h2 class="oe_slogan" style="font-weight: normal; color: #666;">A lightweight validation and serialization framework for building clean, maintainable REST APIs in Odoo</h2>
+    </div>
+</section>
+
+<!-- Overview Section -->
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Overview</h2>
+        <div class="oe_span12">
+            <p style="font-size: 16px; line-height: 1.8;">
+                The <code>odoo_api_serializer</code> module provides a structured approach to handling API requests in Odoo, offering:
+            </p>
+            <ul style="font-size: 16px;">
+                <li><strong>Field-level validation</strong> with type checking and custom validators</li>
+                <li><strong>DRF-inspired API</strong> that's familiar to Django developers</li>
+                <li><strong>Configurable date/datetime formats</strong></li>
+                <li><strong>Clean separation</strong> of validation logic from controller code</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Key Features Section -->
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Key Features</h2>
+        <div class="oe_span6">
+            <div class="oe_picture">
+                <i class="fa fa-check-circle fa-5x text-success"></i>
+            </div>
+            <h3 style="text-align: center;">Type Validation</h3>
+            <p style="text-align: center;">
+                Support for common data types including char, text, integer, float, boolean, date, datetime, selection, list, and dict
+            </p>
+        </div>
+        <div class="oe_span6">
+            <div class="oe_picture">
+                <i class="fa fa-shield fa-5x text-primary"></i>
+            </div>
+            <h3 style="text-align: center;">Custom Validators</h3>
+            <p style="text-align: center;">
+                Add field-level validation logic with custom validator methods for complex business rules
+            </p>
+        </div>
+    </div>
+    <div class="oe_row oe_spaced">
+        <div class="oe_span6">
+            <div class="oe_picture">
+                <i class="fa fa-calendar fa-5x text-info"></i>
+            </div>
+            <h3 style="text-align: center;">Date Formatting</h3>
+            <p style="text-align: center;">
+                Configurable date and datetime formats to match your application's requirements
+            </p>
+        </div>
+        <div class="oe_span6">
+            <div class="oe_picture">
+                <i class="fa fa-code fa-5x text-warning"></i>
+            </div>
+            <h3 style="text-align: center;">Clean Architecture</h3>
+            <p style="text-align: center;">
+                Separate validation logic from controller code for better maintainability and reusability
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Supported Field Types -->
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Supported Field Types</h2>
+        <div class="oe_span12">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>char</code></td>
+                        <td>Short text strings</td>
+                        <td>"John Doe"</td>
+                    </tr>
+                    <tr>
+                        <td><code>text</code></td>
+                        <td>Long text content</td>
+                        <td>"Description..."</td>
+                    </tr>
+                    <tr>
+                        <td><code>integer</code></td>
+                        <td>Whole numbers</td>
+                        <td>42</td>
+                    </tr>
+                    <tr>
+                        <td><code>float</code></td>
+                        <td>Decimal numbers</td>
+                        <td>3.14</td>
+                    </tr>
+                    <tr>
+                        <td><code>boolean</code></td>
+                        <td>True/False values</td>
+                        <td>true</td>
+                    </tr>
+                    <tr>
+                        <td><code>date</code></td>
+                        <td>Date values</td>
+                        <td>"2025-01-15"</td>
+                    </tr>
+                    <tr>
+                        <td><code>datetime</code></td>
+                        <td>Date and time values</td>
+                        <td>"2025-01-15 14:30:00"</td>
+                    </tr>
+                    <tr>
+                        <td><code>selection</code></td>
+                        <td>Predefined choices</td>
+                        <td>"draft"</td>
+                    </tr>
+                    <tr>
+                        <td><code>list</code></td>
+                        <td>Array values</td>
+                        <td>[1, 2, 3]</td>
+                    </tr>
+                    <tr>
+                        <td><code>dict</code></td>
+                        <td>JSON objects</td>
+                        <td>{"key": "value"}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Example -->
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Quick Example</h2>
+        <div class="oe_span12">
+            <h3>Step 1: Define Your Serializer</h3>
+            <pre>from odoo.addons.odoo_api_serializer.utils.serializers import BaseSerializer, Field
+
+class FilmSerializer(BaseSerializer):
+    # Configure custom date formats (optional)
+    date_format = "%Y/%m/%d"
+    datetime_format = "%Y/%m/%d %H:%M:%S"
+
+    # Define fields with validation rules
+    name = Field(type='char', required=True)
+    genre = Field(
+        type='selection',
+        selection=('action', 'drama', 'comedy', 'animation',
+                   'romance', 'musical', 'documentary', 'thriller', 'horror')
+    )
+    release_date = Field(type='date')
+    first_premier_datetime = Field(type='datetime')
+
+    # Add custom field validator
+    def validate_name(self, value):
+        if value[0] == 'a':
+            raise ValueError("Name cannot start with an 'a'")
+        return value</pre>
+        </div>
+    </div>
+</section>
+
+<!-- Usage in Controller -->
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Usage in Controller</h2>
+        <div class="oe_span12">
+            <h3>Step 2: Use in Your API Endpoint</h3>
+            <pre>@http.route('/api/films', type='http', auth='none',
+            methods=['POST'], csrf=False)
+def create_film(self, **kwargs):
+    payload = request.get_json_data()
+    serializer = FilmSerializer(payload, mode='create')
+
+    if not serializer.is_valid():
+        return self._json_response(
+            'error',
+            message='Validation failed',
+            data=serializer.errors,
+            http_status=400
+        )
+
+    film = request.env['awab.film'].sudo().create(
+        serializer.cleaned_data()
+    )
+    return self._json_response(
+        'success',
+        data=self._format_film(film),
+        message='Film created',
+        http_status=201
+    )</pre>
+        </div>
+    </div>
+</section>
+
+<!-- Validation Examples -->
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Validation Examples</h2>
+        <div class="oe_span12">
+            <div class="feature-box">
+                <h3>✓ Valid Request</h3>
+                <p><strong>Request:</strong></p>
+                <pre>{
+    "name": "Inception",
+    "genre": "thriller",
+    "release_date": "2010/07/16",
+    "first_premier_datetime": "2010/07/08 20:00:00"
+}</pre>
+                <p><strong>Response:</strong></p>
+                <pre>{
+    "status": "success",
+    "message": "Film created",
+    "data": {
+        "id": 1,
+        "name": "Inception",
+        "genre": "thriller",
+        "release_date": "16-07-2010",
+        "first_premier_datetime": "08-07-2010 20:00:00"
+    }
+}</pre>
+            </div>
+
+            <div class="feature-box">
+                <h3>✗ Invalid Selection Value</h3>
+                <p><strong>Request:</strong></p>
+                <pre>{
+    "name": "Test Film",
+    "genre": "scifi"
+}</pre>
+                <p><strong>Response:</strong></p>
+                <pre>{
+    "status": "error",
+    "message": "Validation failed",
+    "data": {
+        "genre": "Invalid selection value 'scifi'. Must be one of: (action, drama, comedy, animation, romance, musical, documentary, thriller, horror)"
+    }
+}</pre>
+            </div>
+
+            <div class="feature-box">
+                <h3>✗ Custom Validator Error</h3>
+                <p><strong>Request:</strong></p>
+                <pre>{
+    "name": "avatar"
+}</pre>
+                <p><strong>Response:</strong></p>
+                <pre>{
+    "status": "error",
+    "message": "Validation failed",
+    "data": {
+        "name": "Name cannot start with an 'a'"
+    }
+}</pre>
+            </div>
+
+            <div class="feature-box">
+                <h3>✗ Missing Required Field</h3>
+                <p><strong>Request:</strong></p>
+                <pre>{
+    "genre": "action"
+}</pre>
+                <p><strong>Response:</strong></p>
+                <pre>{
+    "status": "error",
+    "message": "Validation failed",
+    "data": {
+        "name": "This field is required."
+    }
+}</pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Validation Modes -->
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Validation Modes</h2>
+        <div class="oe_span12">
+            <div class="oe_span6">
+                <div class="feature-box">
+                    <h3><span class="badge badge-success">CREATE</span> Mode</h3>
+                    <ul>
+                        <li>All required fields must be present</li>
+                        <li>Default values are applied</li>
+                        <li>Full validation of all fields</li>
+                    </ul>
+                    <pre>serializer = FilmSerializer(
+    payload,
+    mode='create'
+)</pre>
+                </div>
+            </div>
+            <div class="oe_span6">
+                <div class="feature-box">
+                    <h3><span class="badge badge-info">WRITE</span> Mode</h3>
+                    <ul>
+                        <li>Only provided fields are validated</li>
+                        <li>Partial updates allowed</li>
+                        <li>Required fields not enforced</li>
+                    </ul>
+                    <pre>serializer = FilmSerializer(
+    payload,
+    mode='write'
+)</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Custom Validators -->
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Custom Field Validators</h2>
+        <div class="oe_span12">
+            <p style="font-size: 16px; text-align: center; margin-bottom: 30px;">
+                Add custom validation logic by defining <code>validate_&lt;field_name&gt;</code> methods:
+            </p>
+            <pre>class UserSerializer(BaseSerializer):
+    email = Field(type='char', required=True)
+    age = Field(type='integer', required=True)
+
+    def validate_email(self, value):
+        if '@' not in value:
+            raise ValueError("Invalid email format")
+        return value.lower()
+
+    def validate_age(self, value):
+        if value < 18:
+            raise ValueError("User must be at least 18 years old")
+        return value</pre>
+        </div>
+    </div>
+</section>
+
+<!-- Custom Date Formats -->
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Custom Date Formats</h2>
+        <div class="oe_span12">
+            <p style="font-size: 16px; text-align: center; margin-bottom: 30px;">
+                Override the default date/datetime formats in your serializer:
+            </p>
+            <pre>class CustomSerializer(BaseSerializer):
+    # DD/MM/YYYY (e.g., 15/01/2025)
+    date_format = "%d/%m/%Y"
+
+    # DD/MM/YYYY HH:MM (e.g., 15/01/2025 14:30)
+    datetime_format = "%d/%m/%Y %H:%M"
+
+    created_date = Field(type='date', required=True)
+    updated_at = Field(type='datetime')</pre>
+        </div>
+    </div>
+</section>
+
+<!-- Technical Details -->
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Technical Details</h2>
+        <div class="oe_span12">
+            <div class="feature-box">
+                <h3>Requirements</h3>
+                <ul>
+                    <li>Odoo 18.0</li>
+                    <li>Python 3.8+</li>
+                </ul>
+            </div>
+            <div class="feature-box">
+                <h3>License</h3>
+                <p>LGPL-3</p>
+            </div>
+            <div class="feature-box">
+                <h3>Response Format</h3>
+                <p>All API responses follow this consistent structure:</p>
+                <pre>{
+    "status": "success|error",
+    "message": "Optional message",
+    "data": {
+        "key": "value"
+    }
+}</pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Support Section -->
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Support & Contributing</h2>
+        <div class="oe_span12" style="text-align: center;">
+            <p style="font-size: 16px; line-height: 1.8;">
+                Contributions are welcome! Please ensure all code follows Odoo and Python coding standards.
+            </p>
+            <p style="font-size: 16px; margin-top: 20px;">
+                For issues and questions, please visit:
+                <a href="https://github.com/Awabkhaled" target="_blank" style="color: #875A7B; font-weight: bold;">
+                    https://github.com/Awabkhaled
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<section class="oe_container" style="background-color: #875A7B; color: white; padding: 40px 20px;">
+    <div class="oe_row">
+        <div class="oe_span12" style="text-align: center;">
+            <h3>Ready to build better APIs in Odoo?</h3>
+            <p style="font-size: 16px; margin-top: 20px;">
+                Install Odoo API Serializer today and start creating clean, maintainable REST APIs!
+            </p>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
