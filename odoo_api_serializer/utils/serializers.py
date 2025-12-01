@@ -12,6 +12,7 @@ FIELD_TYPES = [
     'dict'
 ]
 
+
 FIELD_TYPES_SET = set(FIELD_TYPES)
 
 
